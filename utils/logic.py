@@ -1,6 +1,10 @@
 import argparse
+import base64
+import binascii
+import codecs
 import logging
 import shlex
+from io import BytesIO
 
 import praw
 from simplegist.simplegist import Simplegist
@@ -23,7 +27,6 @@ types:
 
 
 def logic(bot: praw.Reddit, message):
-    typepicked = False
     argument = str(message.content).replace(f'u/{bot.user.me}', '')
     pr = argparse.ArgumentParser()
     pr.add_argument("--encode", "-e", help="Pick encode as your choice")
@@ -39,34 +42,77 @@ def logic(bot: praw.Reddit, message):
 
     args = pr.parse_args(shlex.split(argument))
 
-    # make sure the user picks encode or decode
+    #types
+    if args.base32:
+        codec = 'base32'
+    elif args.base64:
+        codec = 'base64'
+    elif args.rot13:
+        codec = 'rot13'
+    elif args.hex:
+        codec = 'hex'
+    elif args.base85:
+        codec = 'base85'
+    elif args.ascii85:
+        codec = 'ascii85'
+    elif args.morse:
+        codec = 'morse'
+    elif args.binary:
+        codec = 'binary'
+    else:
+        return warning(message, 'you need to fill in a least one of these options')
+
+    if args.encode:
+        encode(codec, message, argument)
+    elif args.base64:
+        decode(codec, message, argument)
+
     if not args.encode and not args.decode and not args.help:
         return warning(message, 'You need to pick either encode or decode')
     elif args.encode and args.encode:
         return warning(message, 'You can\'t pick both encode and decode')
 
-    if args.base32:
-        typepicked = True
-    elif args.base64:
-        typepicked = True
-    else:
-        warning(message, 'you need to fill in a least one of thease options')
 
-
-import base64
-import binascii
-import codecs
-from io import BytesIO
-
-
-def encode(txt):
+def encode(codec, message, txt):
     """All encode methods"""
-    pass
+    match codec:
+        case 'base32':
+            encode_base32(message, txt)
+        case 'base64':
+            encode_base64(message, txt)
+        case 'base85':
+            encode_base85(message, txt)
+        case 'rot13':
+            encode_rot13(message, txt)
+        case 'hex':
+            encode_hex(message, txt)
+        case 'ascii85':
+            encode_ascii85(message, txt)
+        case 'morse':
+            encode_morse(message, txt)
+        case 'binary':
+            encode_binary(message, txt)
 
 
-def decode(txt):
+def decode(codec, message, txt):
     """All decode methods"""
-    pass
+    match codec:
+        case 'base32':
+            decode_base32(message, txt)
+        case 'base64':
+            decode_base64(message, txt)
+        case 'base85':
+            decode_base85(message, txt)
+        case 'rot13':
+            decode_rot13(message, txt)
+        case 'hex':
+            decode_hex(message, txt)
+        case 'ascii85':
+            decode_ascii85(message, txt)
+        case 'morse':
+            decode_morse(message, txt)
+        case 'binary':
+            decode_binary(message, txt)
 
 
 def warning(message, msg):
@@ -215,7 +261,7 @@ def decode_ascii85(message, text: str):
 
 
 # @encode.command(name="morse", brief="Encode in morse code")
-def encode_to_morse(message, text: str):
+def encode_morse(message, text: str):
     try:
         answer = " ".join(MorseCode.get(i.upper()) for i in text)
     except TypeError:
@@ -224,7 +270,7 @@ def encode_to_morse(message, text: str):
 
 
 # @decode.command(name="morse", brief="Decode to morse code")
-def decode_to_morse(message, text: str):
+def decode_morse(message, text: str):
     try:
         answer = " ".join(MorseCodeReversed.get(i.upper()) for i in text.split())
     except TypeError:
@@ -233,7 +279,7 @@ def decode_to_morse(message, text: str):
 
 
 # @encode.command(name="binary", aliases=["b"], brief="Encode to binary")
-def encode_to_binary(message, text: str):
+def encode_binary(message, text: str):
     try:
         res = ''.join(format(ord(i), '08b') for i in text)
     except TypeError:
@@ -243,7 +289,7 @@ def encode_to_binary(message, text: str):
 
 
 # @decode.command(name="binary", aliases=["b"], brief="Decode in binary")
-def decode_from_binary(message, text: str):
+def decode_binary(message, text: str):
     try:
         binary_int = int(text, 2)
         byte_number = binary_int.bit_length() + 7 // 8
