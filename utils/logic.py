@@ -27,17 +27,17 @@ def logic(bot: praw.Reddit, message):
     argument = remove_markdown(str(message.body).replace(f'u/{str(bot.user.me())}', ''))
     print(f'{argument=}')
     pr = argparse.ArgumentParser()
-    pr.add_argument("--encode", "-e", help="Pick encode as your choice", action='store_true')
-    pr.add_argument("--decode", "-d", help="Pick decode as your choice", action='store_true')
-    pr.add_argument("--base32", "-b32", help="Encode/Decode in base32", action='store_true')
-    pr.add_argument("--base64", "-b64", help="Encode/Decode in base64", action='store_true')
-    pr.add_argument("--rot13", "-r13", help="Encode/Decode in rot13", action='store_true')
-    pr.add_argument("--hex", "-he", help="Encode/Decode in hex", action='store_true')
-    pr.add_argument("--base85", "-b85", help="Encode/Decode in base85", action='store_true')
-    pr.add_argument("--ascii85", "-a85", help="Encode/Decode in ASCII85", action='store_true')
-    pr.add_argument("--morse", "-m", help="Encode/Decode in morse code", action='store_true')
-    pr.add_argument("--binary", "-b", help="Encode/Decode in binary", action='store_true')
-    pr.add_argument("--text", '-t', help='the data')
+    pr.add_argument('--encode', '-e', help='Pick encode as your choice', action='store_true')
+    pr.add_argument('--decode', '-d', help='Pick decode as your choice', action='store_true')
+    pr.add_argument('--base32', '-b32', help='Encode/Decode in base32', action='store_true')
+    pr.add_argument('--base64', '-b64', help='Encode/Decode in base64', action='store_true')
+    pr.add_argument('--rot13', '-r13', help='Encode/Decode in rot13', action='store_true')
+    pr.add_argument('--hex', '-he', help='Encode/Decode in hex', action='store_true')
+    pr.add_argument('--base85', '-b85', help='Encode/Decode in base85', action='store_true')
+    pr.add_argument('--ascii85', '-a85', help='Encode/Decode in ASCII85', action='store_true')
+    pr.add_argument('--morse', '-m', help='Encode/Decode in morse code', action='store_true')
+    pr.add_argument('--binary', '-b', help='Encode/Decode in binary', action='store_true')
+    pr.add_argument('--text', '-t', help='the data')
 
     args = pr.parse_args(shlex.split(argument))
     print(f'{args=}')
@@ -121,23 +121,23 @@ def warning(message, msg):
     log.warning(f'Message: {message} '
                 f'{msg}')
 
-    message.reply(f"{msg}"
-                  f"{footer_message()}")
+    message.reply(f'{msg}'
+                  f'{footer_message()}')
 
 
 def InvalidWarning(message, param):
     log.info(f'Message: {message} '
              f'{param}')
 
-    message.reply(f"Sorry {message.author} but it looks like that was some {param}, Please try again."
-                  f"{footer_message()}")
+    message.reply(f'Sorry {message.author} but it looks like that was some {param}, Please try again.'
+                  f'{footer_message()}')
 
 
 def encryptout(message, ConversionType: str, text):
     """The main, modular function to control encrypt/decrypt commands"""
     if not text:
         return warning(message,
-                       f"Aren't you going to give me anything to encode/decode **{message.author.name}**"
+                       f'Aren\'t you going to give me anything to encode/decode **{message.author.name}**'
                        )
     # todo return if over 1500 chars in lengh a github gist
     try:
@@ -149,7 +149,7 @@ def encryptout(message, ConversionType: str, text):
         content = f'**{ConversionType}**\n{text}'
     except Exception as e:
         log.error(f'Somthing went wrong with {e}')
-        return warning(message, f"Somthing went wrong, sorry {message.author}...")
+        return warning(message, f'Somthing went wrong, sorry {message.author}...')
 
     if len(text) < 1500:
         reply(message, content)
@@ -166,92 +166,92 @@ def CreateGist(message, content: str) -> str:
 
 def encode_base32(message, text: str):
     encryptout(
-        message, "Text -> base32", base64.b32encode(text.encode("utf-8"))
+        message, 'Text -> base32', base64.b32encode(text.encode('utf-8'))
     )
 
 def decode_base32(message, text: str):
     try:
         encryptout(
-            message, "base32 -> Text", base64.b32decode(text.encode("utf-8"))
+            message, 'base32 -> Text', base64.b32decode(text.encode('utf-8'))
         )
     except Exception:
-        InvalidWarning(message, "Invalid base32...")
+        InvalidWarning(message, 'Invalid base32...')
 
 def encode_base64(message, text: str):
     encryptout(
-        message, "Text -> base64", base64.urlsafe_b64encode(text.encode("utf-8"))
+        message, 'Text -> base64', base64.urlsafe_b64encode(text.encode('utf-8'))
     )
 
 
 def decode_base64(message, text: str):
     try:
         encryptout(
-            message, "base64 -> Text", base64.urlsafe_b64decode(text.encode("utf-8"))
+            message, 'base64 -> Text', base64.urlsafe_b64decode(text.encode('utf-8'))
         )
     except Exception:
-        InvalidWarning(message, "Invalid base64...")
+        InvalidWarning(message, 'Invalid base64...')
 
 def encode_rot13(message, text: str):
-    encryptout(message, "Text -> rot13", codecs.decode(text, "rot_13"))
+    encryptout(message, 'Text -> rot13', codecs.decode(text, 'rot_13'))
 
 def decode_rot13(message, text: str):
     try:
-        encryptout(message, "rot13 -> Text", codecs.decode(text, "rot_13"))
+        encryptout(message, 'rot13 -> Text', codecs.decode(text, 'rot_13'))
     except Exception:
-        InvalidWarning(message, "Invalid rot13...")
+        InvalidWarning(message, 'Invalid rot13...')
 
 def encode_hex(message, text: str):
     encryptout(
-        message, "Text -> hex", binascii.hexlify(text.encode("utf-8"))
+        message, 'Text -> hex', binascii.hexlify(text.encode('utf-8'))
     )
 
 def decode_hex(message, text: str):
     try:
         encryptout(
-            message, "hex -> Text", binascii.unhexlify(text.encode("utf-8"))
+            message, 'hex -> Text', binascii.unhexlify(text.encode('utf-8'))
         )
     except Exception:
-        InvalidWarning(message, "Invalid hex...")
+        InvalidWarning(message, 'Invalid hex...')
 
 def encode_base85(message, text: str):
     encryptout(
-        message, "Text -> base85", base64.b85encode(text.encode("utf-8"))
+        message, 'Text -> base85', base64.b85encode(text.encode('utf-8'))
     )
 
 def decode_base85(message, text: str):
     try:
         encryptout(
-            message, "base85 -> Text", base64.b85decode(text.encode("utf-8"))
+            message, 'base85 -> Text', base64.b85decode(text.encode('utf-8'))
         )
     except Exception:
-        InvalidWarning(message, "Invalid base85...")
+        InvalidWarning(message, 'Invalid base85...')
 
 def encode_ascii85(message, text: str):
     encryptout(
-        message, "Text -> ASCII85", base64.a85encode(text.encode("utf-8"))
+        message, 'Text -> ASCII85', base64.a85encode(text.encode('utf-8'))
     )
 
 def decode_ascii85(message, text: str):
     try:
         encryptout(
-            message, "ASCII85 -> Text", base64.a85decode(text.encode("utf-8"))
+            message, 'ASCII85 -> Text', base64.a85decode(text.encode('utf-8'))
         )
     except Exception:
-        InvalidWarning(message, "Invalid ASCII85...")
+        InvalidWarning(message, 'Invalid ASCII85...')
 
 def encode_morse(message, text: str):
     try:
-        answer = " ".join(MorseCode.get(i.upper()) for i in text)
+        answer = ' '.join(MorseCode.get(i.upper()) for i in text)
     except TypeError:
         return InvalidWarning(message, 'Invalid Morse')
-    encryptout(message, "Text -> Morse", answer)
+    encryptout(message, 'Text -> Morse', answer)
 
 def decode_morse(message, text: str):
     try:
-        answer = " ".join(MorseCodeReversed.get(i.upper()) for i in text.split())
+        answer = ' '.join(MorseCodeReversed.get(i.upper()) for i in text.split())
     except TypeError:
         return InvalidWarning(message, 'Invalid Morse')
-    encryptout(message, "Morse -> Text", answer)
+    encryptout(message, 'Morse -> Text', answer)
 
 def encode_binary(message, text: str):
     try:
@@ -259,15 +259,15 @@ def encode_binary(message, text: str):
     except TypeError:
         return InvalidWarning(message, 'Invalid Binary')
     encryptout(
-        message, "Text -> binary", res)
+        message, 'Text -> binary', res)
 
 def decode_binary(message, text: str):
     try:
         binary_int = int(text, 2)
         byte_number = binary_int.bit_length() + 7 // 8
-        binary_array = binary_int.to_bytes(byte_number, "big")
+        binary_array = binary_int.to_bytes(byte_number, 'big')
         ascii_text = binary_array.decode()
     except TypeError:
         return InvalidWarning(message, 'Invalid Binary')
     encryptout(
-        message, "Binary -> Text", ascii_text)
+        message, 'Binary -> Text', ascii_text)
