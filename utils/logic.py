@@ -4,16 +4,13 @@ import binascii
 import codecs
 import logging
 import shlex
-from io import BytesIO
 
 import praw
-from simplegist.simplegist import Simplegist
 
-from main import GITHUB_TOKEN, GITHUB_USERNAME, footer_message, reply
-from utils.vars import MorseCode, MorseCodeReversed
+from utils.funcs import create_gist, reply, remove_markdown
+from utils.vars import MorseCode, MorseCodeReversed, footer_message
 
 log = logging.getLogger(__name__)
-ghg = Simplegist(username=GITHUB_USERNAME, api_token=GITHUB_TOKEN)
 
 """
 Basic logic 
@@ -27,22 +24,27 @@ types:
 
 
 def logic(bot: praw.Reddit, message):
-    argument = str(message.content).replace(f'u/{bot.user.me}', '')
+    argument = remove_markdown(str(message.body).replace(f'u/{str(bot.user.me())}', ''))
+    print(f'{argument=}')
     pr = argparse.ArgumentParser()
-    pr.add_argument("--encode", "-e", help="Pick encode as your choice")
-    pr.add_argument("--decode", "-d", help="Pick decode as your choice")
-    pr.add_argument("--base32", "-b32", help="Encode/Decode in base32")
-    pr.add_argument("--base64", "-b64", help="Encode/Decode in base64")
-    pr.add_argument("--rot13", "-r13", help="Encode/Decode in rot13")
-    pr.add_argument("--hex", "-h", help="Encode/Decode in hex")
-    pr.add_argument("--base85", "-b85", help="Encode/Decode in base85")
-    pr.add_argument("--ascii85", "-a85", help="Encode/Decode in ASCII85")
-    pr.add_argument("--morse", "-m", help="Encode/Decode in morse code")
-    pr.add_argument("--binary", "-b", help="Encode/Decode in binary")
+    pr.add_argument("--encode", "-e", help="Pick encode as your choice", action='store_true')
+    pr.add_argument("--decode", "-d", help="Pick decode as your choice", action='store_true')
+    pr.add_argument("--base32", "-b32", help="Encode/Decode in base32", action='store_true')
+    pr.add_argument("--base64", "-b64", help="Encode/Decode in base64", action='store_true')
+    pr.add_argument("--rot13", "-r13", help="Encode/Decode in rot13", action='store_true')
+    pr.add_argument("--hex", "-he", help="Encode/Decode in hex", action='store_true')
+    pr.add_argument("--base85", "-b85", help="Encode/Decode in base85", action='store_true')
+    pr.add_argument("--ascii85", "-a85", help="Encode/Decode in ASCII85", action='store_true')
+    pr.add_argument("--morse", "-m", help="Encode/Decode in morse code", action='store_true')
+    pr.add_argument("--binary", "-b", help="Encode/Decode in binary", action='store_true')
+    pr.add_argument("--text", '-t', help='the data')
 
     args = pr.parse_args(shlex.split(argument))
-
-    #types
+    print(f'{args=}')
+    if not args.text:
+        return warning(message, 'you need to fill the --text argument')
+    text = args.text
+    # types
     if args.base32:
         codec = 'base32'
     elif args.base64:
@@ -63,13 +65,13 @@ def logic(bot: praw.Reddit, message):
         return warning(message, 'you need to fill in a least one of these options')
 
     if args.encode:
-        encode(codec, message, argument)
+        encode(codec, message, text)
     elif args.base64:
-        decode(codec, message, argument)
+        decode(codec, message, text)
 
-    if not args.encode and not args.decode and not args.help:
-        return warning(message, 'You need to pick either encode or decode')
-    elif args.encode and args.encode:
+    if not args.encode and not args.decode:
+        return warning(message, 'You need to pick either encode or decode\ne.g. -e -b32 hey')
+    elif args.encode and args.decode:
         return warning(message, 'You can\'t pick both encode and decode')
 
 
@@ -131,33 +133,36 @@ def InvalidWarning(message, param):
                   f"{footer_message()}")
 
 
-def encryptout(message, ConversionType: str, text=None):
+def encryptout(message, ConversionType: str, text):
     """The main, modular function to control encrypt/decrypt commands"""
     if not text:
         return warning(message,
                        f"Aren't you going to give me anything to encode/decode **{message.author.name}**"
                        )
     # todo return if over 1500 chars in lengh a github gist
-    if len(text) > 1500:
-        try:
-            data = BytesIO(text.encode("utf-8"))
-        except AttributeError:
-            data = BytesIO(text)
-        try:
-            content = f'**{ConversionType}**\n{data}'
-            reply(message, content)
+    try:
+        text = str(text, 'utf-8')
+    except:
+        pass
+    
+    try:
+        content = f'**{ConversionType}**\n{text}'
+    except Exception as e:
+        log.error(f'Somthing went wrong with {e}')
+        return warning(message, f"Somthing went wrong, sorry {message.author}...")
 
-        except Exception as e:
-            log.error(f'Somthing went wrong with {e}')
-            return warning(message, f"Somthing went wrong, sorry {message.author}...")
+    if len(text) < 1500:
+        reply(message, content)
 
     else:
-        ghg.create(name='_GISTNAME', description='_ANY_DESCRIPTION', public=1, content='_CONTENT_GOES_HERE')
+        CreateGistMessage(message, content=content)
 
+def CreateGistMessage(message, content: str):
+    return reply(message, content=f'The text was a bit long so I put it in a gist {CreateGist(message, content)}')
 
 def CreateGist(message, content: str) -> str:
-    return ghg.create(name=f'Encodation Post', description=f'Encodation feed for u/{message.author}', public=0,
-                      content=content)
+    return create_gist(description=f'Encodation feed for u/{message.author}',
+                       content=content)
 
     # todo reply(f"📑 **{ConversionType}**```fix\n{text}```")
 

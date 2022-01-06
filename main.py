@@ -1,8 +1,14 @@
-import logging
-import praw
+import json  # Save/Load config
+import sys  # For various things
+# To truncate messages (optional really)
+import time  # To sleep
+
 from praw import exceptions
-from os import environ
-from dotenv import load_dotenv
+from prawcore.exceptions import OAuthException, ResponseException
+
+from utils.funcs import truncate
+from utils.logic import *
+from utils.vars import *
 
 ACTIVE = True
 logging.basicConfig(
@@ -14,25 +20,6 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 log.info('starting setup')
-load_dotenv('settings.env')
-CLIENT_SECRET = environ.get('CLIENT_SECRET')
-CLIENT_ID = environ.get('CLIENT_ID')
-PASSWORD = environ.get('ACCOUNT_PASSWORD')
-USERNAME = environ.get('ACCOUNT_USERNAME')
-CREATOR_USERNAME = environ.get('CREATOR_USERNAME')
-
-GITHUB_USERNAME = environ.get('GITHUB_ACCOUNT_USERNAME')
-GITHUB_TOKEN = environ.get('GITHUB_TOKEN')
-
-VERSION = 0.56
-from prawcore.exceptions import OAuthException, ResponseException
-from utils.funcs import truncate
-# To truncate messages (optional really)
-import time  # To sleep
-import json  # Save/Load config
-import logging  # For logging... of course
-import sys  # For various things
-
 # Configure the logger
 log.addHandler(logging.StreamHandler(sys.stdout))
 log.setLevel(logging.DEBUG)
@@ -53,16 +40,6 @@ def save():
     # Open "unsubscribers.json" and dump the unsubscribers to it
     with open('unsubscribers.json', 'w') as f:
         json.dump(unsubscribers, f, indent=4, separators=(',', ': '))
-
-
-def footer_message():
-    """
-    Returns the constructed footer message.\n
-    `bot` The currently running bot.
-    """
-    # This can be customised to whatever you like. You can use Reddit Markdown formatting as well.
-    return f'\n\n___\n\n ^(I am a bot. Message) u/{CREATOR_USERNAME} ^(if I am being stupid.) ^(If not Please consider) [^(Buying my creator a coffee.)](https://www.buymeacoffee.com/edoc) ^(We also have a) [^(Discord Server)](https://discord.gg/6EFAqm5aSG)^(,) ^(Come check it out.) ^[Unsubscribe](https://www.reddit.com/message/compose/?to={USERNAME}&subject=unsubscribe&message=unsubscribe)'
-
 
 def login():
     log.info('initializing praw')
@@ -119,8 +96,7 @@ def handle_mentions(bot: praw.Reddit):
                     f'Found Mention in r/{str(message.subreddit)} (id:{str(message.id)})\n\t"' + truncate(message.body,
                                                                                                           70,
                                                                                                           '...') + '"')
-                message.reply(f"hello, {message.author}"
-                              f"{footer_message()}")  # reply with this message
+                logic(bot, message)      #core logic of the bot
                 message.mark_read()  # mark message as read so your bot doesn't respond to it again...
         except praw.exceptions.APIException:  # Reddit may have rate limits, this prevents your bot from dying due to rate limits
             print("probably a rate limit....")
@@ -151,8 +127,7 @@ def handle_messages(bot: praw.Reddit, max_messages: int = 25):
             log.info(f'Unsubscribing "{message.author}"')
             unsubscribers['unsubscribed_users'].append(str(message.author))
             save()
-            message.reply(
-                f'Okay, I will no longer reply to your posts.{footer_message()}')
+            reply(message, f'Okay, I will no longer reply to your posts.')
             message.delete()
         # Ignore the message if we don't recognise it
         else:
@@ -167,14 +142,8 @@ def run_bot(bot: praw.Reddit, sleep_time: int = 3):
     time.sleep(sleep_time)
 
 
-# ==================================#
-def reply(message, content):
-    message.reply(f'{content}{footer_message()}')
-
-
 # Main Code=========================#
 log.info('Logging in...')
-global bot
 bot = login()
 
 log.info('Logged in as ' + str(bot.user.me()))

@@ -1,3 +1,37 @@
+import logging
+from os import environ
+
+from dotenv import load_dotenv
+
+log = logging.getLogger(__name__)
+log.info('loading env vars')
+load_dotenv('settings.env')
+
+CLIENT_SECRET = environ.get('CLIENT_SECRET')
+CLIENT_ID = environ.get('CLIENT_ID')
+PASSWORD = environ.get('ACCOUNT_PASSWORD')
+USERNAME = environ.get('ACCOUNT_USERNAME')
+CREATOR_USERNAME = environ.get('CREATOR_USERNAME')
+
+GITHUB_TOKEN = environ.get('GITHUB_TOKEN')
+
+VERSION = 0.56
+
+
+def footer_message():
+    """
+    Returns the constructed footer message.\n
+    `bot` The currently running bot.
+    """
+    # This can be customised to whatever you like. You can use Reddit Markdown formatting as well.
+    return f'\n\n___\n\n ^(I am a bot. Please message) u/{CREATOR_USERNAME} ^(if I am being stupid.) ^(If not Please consider) [^(Buying my creator a coffee.)](https://www.buymeacoffee.com/edoc) ^(We also have a) [^(Discord Server)](https://discord.gg/6EFAqm5aSG)^(,) ^(Come check it out.) ^[Unsubscribe](https://www.reddit.com/message/compose/?to={USERNAME}&subject=unsubscribe&message=unsubscribe)'
+
+
+_MARKDOWN_ESCAPE_COMMON = r'^>(?:>>)?\s|\[.+\]\(.+\)'
+
+_URL_REGEX = r'(?P<url><[^: >]+:\/[^ >]+>|(?:https?|steam):\/\/[^\s<]+[^<.,:;\"\'\]\s])'
+
+_MARKDOWN_STOCK_REGEX = fr'(?P<markdown>[_\\~|\*`]|{_MARKDOWN_ESCAPE_COMMON})'
 MorseCode = {
     "A": ".-",
     "B": "-...",

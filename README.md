@@ -32,6 +32,7 @@ Inspiration was drawn from another project of mine [edoC](https://github.com/Jak
 
 #todo
 * add a subreddit blacklist
+* make the log syntax better (line where the error happened/more details)
 
 ## Install process
 1. Download and install python from https://www.python.org/ (If you're unsure download version 3.5 and chose default install)
