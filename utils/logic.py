@@ -164,17 +164,11 @@ def CreateGist(message, content: str) -> str:
     return create_gist(description=f'Encodation feed for u/{message.author}',
                        content=content)
 
-    # todo reply(f"📑 **{ConversionType}**```fix\n{text}```")
-
-
-# @encode.command(name="base32", aliases=["b32"], brief="Encode in base32")
 def encode_base32(message, text: str):
     encryptout(
         message, "Text -> base32", base64.b32encode(text.encode("utf-8"))
     )
 
-
-# @decode.command(name="base32", aliases=["b32"], brief="Decode in base32")
 def decode_base32(message, text: str):
     try:
         encryptout(
@@ -183,15 +177,12 @@ def decode_base32(message, text: str):
     except Exception:
         InvalidWarning(message, "Invalid base32...")
 
-
-# @encode.command(name="base64", aliases=["b64"], brief="Encode in base64")
 def encode_base64(message, text: str):
     encryptout(
         message, "Text -> base64", base64.urlsafe_b64encode(text.encode("utf-8"))
     )
 
 
-# @decode.command(name="base64", aliases=["b64"], brief="Decode in base64")
 def decode_base64(message, text: str):
     try:
         encryptout(
@@ -200,28 +191,20 @@ def decode_base64(message, text: str):
     except Exception:
         InvalidWarning(message, "Invalid base64...")
 
-
-# @encode.command(name="rot13", aliases=["r13"], brief="Encode in rot13")
 def encode_rot13(message, text: str):
     encryptout(message, "Text -> rot13", codecs.decode(text, "rot_13"))
 
-
-# @decode.command(name="rot13", aliases=["r13"], brief="Decode in rot13")
 def decode_rot13(message, text: str):
     try:
         encryptout(message, "rot13 -> Text", codecs.decode(text, "rot_13"))
     except Exception:
         InvalidWarning(message, "Invalid rot13...")
 
-
-# @encode.command(name="hex", brief="Encode in hex")
 def encode_hex(message, text: str):
     encryptout(
         message, "Text -> hex", binascii.hexlify(text.encode("utf-8"))
     )
 
-
-# @decode.command(name="hex", brief="Decode in hex")
 def decode_hex(message, text: str):
     try:
         encryptout(
@@ -230,15 +213,11 @@ def decode_hex(message, text: str):
     except Exception:
         InvalidWarning(message, "Invalid hex...")
 
-
-# @encode.command(name="base85", aliases=["b85"], brief="Encode in base85")
 def encode_base85(message, text: str):
     encryptout(
         message, "Text -> base85", base64.b85encode(text.encode("utf-8"))
     )
 
-
-# @decode.command(name="base85", aliases=["b85"], brief="Decode in base85")
 def decode_base85(message, text: str):
     try:
         encryptout(
@@ -247,15 +226,11 @@ def decode_base85(message, text: str):
     except Exception:
         InvalidWarning(message, "Invalid base85...")
 
-
-# @encode.command(name="ascii85", aliases=["a85"], breif="Encode in ASCII85")
 def encode_ascii85(message, text: str):
     encryptout(
         message, "Text -> ASCII85", base64.a85encode(text.encode("utf-8"))
     )
 
-
-# @decode.command(name="ascii85", aliases=["a85"], brief="Decode in ASCII85")
 def decode_ascii85(message, text: str):
     try:
         encryptout(
@@ -264,8 +239,6 @@ def decode_ascii85(message, text: str):
     except Exception:
         InvalidWarning(message, "Invalid ASCII85...")
 
-
-# @encode.command(name="morse", brief="Encode in morse code")
 def encode_morse(message, text: str):
     try:
         answer = " ".join(MorseCode.get(i.upper()) for i in text)
@@ -273,8 +246,6 @@ def encode_morse(message, text: str):
         return InvalidWarning(message, 'Invalid Morse')
     encryptout(message, "Text -> Morse", answer)
 
-
-# @decode.command(name="morse", brief="Decode to morse code")
 def decode_morse(message, text: str):
     try:
         answer = " ".join(MorseCodeReversed.get(i.upper()) for i in text.split())
@@ -282,8 +253,6 @@ def decode_morse(message, text: str):
         return InvalidWarning(message, 'Invalid Morse')
     encryptout(message, "Morse -> Text", answer)
 
-
-# @encode.command(name="binary", aliases=["b"], brief="Encode to binary")
 def encode_binary(message, text: str):
     try:
         res = ''.join(format(ord(i), '08b') for i in text)
@@ -292,8 +261,6 @@ def encode_binary(message, text: str):
     encryptout(
         message, "Text -> binary", res)
 
-
-# @decode.command(name="binary", aliases=["b"], brief="Decode in binary")
 def decode_binary(message, text: str):
     try:
         binary_int = int(text, 2)
