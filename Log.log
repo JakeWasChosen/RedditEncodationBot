@@ -1,8 +1,0 @@
-2022-01-05 20:22:50,297 - __main__ - INFO - starting setup
-2022-01-05 20:22:50,298 - __main__ - INFO - Logging in...
-2022-01-05 20:22:50,298 - __main__ - INFO - initializing praw
-2022-01-05 20:22:51,178 - __main__ - INFO - praw initialized
-2022-01-05 20:22:51,178 - __main__ - INFO - Logged in as Encodation
-2022-01-05 20:22:51,178 - __main__ - INFO - 0 unsubscribed users
-2022-01-05 20:24:27,442 - __main__ - INFO - Found Mention in r/bottesting (id:hrfnzru)
-	"u/Encodation -d -b32 -t NBSXS6I="

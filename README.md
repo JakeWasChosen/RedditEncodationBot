@@ -6,12 +6,12 @@ Encode/decode text using a commandline style syntax
 
 Going into a little more detail the script will:
 
-1. Query Reddit for an amount of posts (25 by default)
-2. Sift through the reddit posts finding direct image links and imgur posts/albums
-3. Extract all image links from any imgur albums found and add them to the link pool
-4. Check whether any of the links has been downloaded before, sorting out those who has
-5. Download all the now sorted links
-6. Go through all downloaded images deleting images smaller than the minimum size, and those with a different aspect ratio
+1. Wait until somebody mentions it, or it gets a private message
+2. If the pm contains unsubscribe it adds the user to a 'blacklist' so no matter what the user sends it doesn't reply
+3. It checks if the user is on a blacklist if not it parses the arguments the user sends
+4. (TODO) it calls the logic()  function and checks if the question has been asked before using a LRU cache
+5. If not then it encodes/decodes the text and adds it the LRU cache
+6. Replys to the user with the appropriate response
 
 
 Inspiration was drawn from another project of mine [edoC](https://github.com/JakeWasChosen/edoC)

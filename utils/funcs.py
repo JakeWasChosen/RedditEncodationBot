@@ -12,7 +12,8 @@ from utils.vars import footer_message, GITHUB_TOKEN, _MARKDOWN_STOCK_REGEX, _URL
 
 log = logging.getLogger(__name__)
 
-def unlistify(lis:list) -> str:
+
+def unlistify(lis: list) -> str:
     output = ""
     for i in lis:
         output += f'{i}   '
@@ -136,7 +137,16 @@ def remove_markdown(text: str, *, ignore_links: bool = True) -> str:
         regex = f'(?:{_URL_REGEX}|{regex})'
     return re.sub(regex, replacement, text, 0, re.MULTILINE)
 
+
 def reply(message, content: str):
     log.info(f'Replying to message (id: {message.id}, author: {message.author}) content: {str(content)}')
     message.reply(f'{content}'
                   f'{footer_message()}')
+
+
+def log_codec(message, codec: str):
+    log.debug(f'{message.id} codec {codec} was chosen')
+
+
+def log_codec_completion(message, codec_to: str, codec_from):
+    log.debug(f'{message.id} The message has successfully been converted to {codec_to}, from {codec_from}')

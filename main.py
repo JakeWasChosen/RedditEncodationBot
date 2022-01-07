@@ -10,20 +10,18 @@ from prawcore.exceptions import OAuthException, ResponseException
 from utils.funcs import truncate
 from utils.logic import *
 from utils.vars import *
-
 ACTIVE = True
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - [%(name)s | %(filename)s:%(lineno)d] - %(levelname)s - %(message)s',
     filename="Log.log",
     filemode="w+",
-    level=logging.INFO
+    level=logging.DEBUG
 )
 log = logging.getLogger(__name__)
 
 log.info('starting setup')
 # Configure the logger
 log.addHandler(logging.StreamHandler(sys.stdout))
-log.setLevel(logging.DEBUG)
 
 # GLOBALS===========================#
 unsubscribers = {}
@@ -41,6 +39,7 @@ def save():
     # Open "unsubscribers.json" and dump the unsubscribers to it
     with open('unsubscribers.json', 'w') as f:
         json.dump(unsubscribers, f, indent=4, separators=(',', ': '))
+
 
 def login():
     log.info('initializing praw')
@@ -134,7 +133,6 @@ def handle_messages(bot: praw.Reddit, max_messages: int = 25):
         else:
             message.delete()
 
-
 def run_bot(bot: praw.Reddit, sleep_time: int = 10):
     try:
         handle_mentions(bot)
@@ -144,7 +142,6 @@ def run_bot(bot: praw.Reddit, sleep_time: int = 10):
     # Sleep, to not flood
     log.debug('Sleeping ' + str(sleep_time) + ' seconds...')
     time.sleep(sleep_time)
-
 
 # Main Code=========================#
 log.info('Logging in...')
