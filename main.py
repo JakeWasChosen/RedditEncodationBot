@@ -3,6 +3,7 @@ import sys  # For various things
 # To truncate messages (optional really)
 import time  # To sleep
 
+import prawcore.exceptions
 from praw import exceptions
 from prawcore.exceptions import OAuthException, ResponseException
 
@@ -95,7 +96,7 @@ def handle_mentions(bot: praw.Reddit):
                 log.info(
                     f'Found Mention in r/{str(message.subreddit)} (id:{str(message.id)})\n\t"' + truncate(message.body,
                                                                                                           70,
-                                                                                                          '...') + '"')
+                                                                                                         '...') + '"')
                 logic(bot, message)      #core logic of the bot
                 message.mark_read()  # mark message as read so your bot doesn't respond to it again...
         except praw.exceptions.APIException:  # Reddit may have rate limits, this prevents your bot from dying due to rate limits
@@ -134,9 +135,12 @@ def handle_messages(bot: praw.Reddit, max_messages: int = 25):
             message.delete()
 
 
-def run_bot(bot: praw.Reddit, sleep_time: int = 3):
-    handle_mentions(bot)
-    handle_messages(bot)
+def run_bot(bot: praw.Reddit, sleep_time: int = 10):
+    try:
+        handle_mentions(bot)
+        handle_messages(bot)
+    except prawcore.exceptions.ServerError:
+        sleep_time += 1
     # Sleep, to not flood
     log.debug('Sleeping ' + str(sleep_time) + ' seconds...')
     time.sleep(sleep_time)

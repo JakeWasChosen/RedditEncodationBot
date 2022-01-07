@@ -7,7 +7,7 @@ import shlex
 
 import praw
 
-from utils.funcs import create_gist, reply, remove_markdown
+from utils.funcs import create_gist, reply, remove_markdown, unlistify
 from utils.vars import MorseCode, MorseCodeReversed, footer_message
 
 log = logging.getLogger(__name__)
@@ -39,11 +39,12 @@ def logic(bot: praw.Reddit, message):
     pr.add_argument('--binary', '-b', help='Encode/Decode in binary', action='store_true')
     pr.add_argument('--text', '-t', help='the data')
 
-    args = pr.parse_args(shlex.split(argument))
+    args, text = pr.parse_known_args(shlex.split(argument))
     print(f'{args=}')
-    if not args.text:
+    text = unlistify(text) or args.text
+    if not text:
         return warning(message, 'you need to fill the --text argument')
-    text = args.text
+    print(text)
     # types
     if args.base32:
         codec = 'base32'

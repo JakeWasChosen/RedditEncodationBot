@@ -12,6 +12,14 @@ from utils.vars import footer_message, GITHUB_TOKEN, _MARKDOWN_STOCK_REGEX, _URL
 
 log = logging.getLogger(__name__)
 
+def unlistify(lis:list) -> str:
+    output = ""
+    for i in lis:
+        output += f'{i}   '
+    print(output)
+    return output
+
+
 def truncate(data: str, length: int, append: str = '') -> str:
     """
     Truncates a string to the given length\n
