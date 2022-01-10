@@ -7,7 +7,9 @@ import shlex
 
 import praw
 
-from utils.funcs import create_gist, reply, remove_markdown, unlistify, log_codec, log_codec_completion
+from utils.cache import LRUcache
+from utils.database import log_request
+from utils.funcs import create_gist, reply, remove_markdown, unlistify, log_codec, log_codec_completion, send_help
 from utils.vars import MorseCode, MorseCodeReversed, footer_message
 
 log = logging.getLogger(__name__)
@@ -37,19 +39,18 @@ def logic(bot: praw.Reddit, message):
         '-h', '--help',
         help='show this help message', action='store_true')
     args, text = pr.parse_known_args(shlex.split(argument))
-
+    log_request(message, args)
     if not bool(argument) or str(argument).replace(' ', '').lower() == 'help':
-        return reply(message, pr.format_help())
+        return send_help(message, pr)
     
     print(f'{args=}')
     text = unlistify(text) or args.text
     str(text).replace('&#x200b', '').replace('\n\n', '')
-    if not text and not args.help:
+    if not text and not args.help:     #FIXME this might be useless 
         return warning(message, 'you need to fill the --text argument')
     # types
     if args.help:
-        log.debug(f'{message.id} sending help')
-        return reply(message, pr.format_help())
+        send_help(message, pr)
     if args.base32:
         log_codec(message, 'b32')
         codec = 'base32'
@@ -133,10 +134,7 @@ def decode(codec, message, txt):
 def warning(message, msg):
     log.warning(f'Message: {message} '
                 f'{msg}')
-
-    message.reply(f'{msg}'
-                  f'{footer_message()}')
-
+    reply(message, msg)
 
 def InvalidWarning(message, param):
     log.info(f'Message: {message} '
@@ -145,14 +143,14 @@ def InvalidWarning(message, param):
     message.reply(f'Sorry {message.author} but it looks like that was some {param}, Please try again.'
                   f'{footer_message()}')
 
-
+@LRUcache
 def encryptout(message, ConversionType: str, text):
     """The main, modular function to control encrypt/decrypt commands"""
     if not text:
         return warning(message,
                        f'Aren\'t you going to give me anything to encode/decode **{message.author.name}**'
                        )
-    # todo return if over 1500 chars in lengh a github gist
+    # todo return if over 1500 chars in length a github gist
     try:
         text = str(text, 'utf-8')
     except:
@@ -162,8 +160,8 @@ def encryptout(message, ConversionType: str, text):
     try:
         content = f'*{ConversionType}*\n**{text}**'
     except Exception as e:
-        log.error(f'Somthing went wrong with {e}')
-        return warning(message, f'Somthing went wrong, sorry {message.author}...')
+        log.error(f'Something went wrong with {e}')
+        return warning(message, f'Something went wrong, sorry {message.author}...')
 
     if len(text) < 1500:
         reply(message, content)
@@ -185,8 +183,7 @@ def encode_base32(message, text: str):
     encryptout(
         message, 'Text -> base32', base64.b32encode(text.encode('utf-8'))
     )
-
-
+@LRUcache
 def decode_base32(message, text: str):
     try:
         encryptout(
@@ -195,13 +192,13 @@ def decode_base32(message, text: str):
     except Exception:
         InvalidWarning(message, 'Invalid base32...')
 
-
+@LRUcache
 def encode_base64(message, text: str):
     encryptout(
         message, 'Text -> base64', base64.urlsafe_b64encode(text.encode('utf-8'))
     )
 
-
+@LRUcache
 def decode_base64(message, text: str):
     try:
         encryptout(
@@ -210,24 +207,24 @@ def decode_base64(message, text: str):
     except Exception:
         InvalidWarning(message, 'Invalid base64...')
 
-
+@LRUcache
 def encode_rot13(message, text: str):
     encryptout(message, 'Text -> rot13', codecs.decode(text, 'rot_13'))
 
-
+@LRUcache
 def decode_rot13(message, text: str):
     try:
         encryptout(message, 'rot13 -> Text', codecs.decode(text, 'rot_13'))
     except Exception:
         InvalidWarning(message, 'Invalid rot13...')
 
-
+@LRUcache
 def encode_hex(message, text: str):
     encryptout(
         message, 'Text -> hex', binascii.hexlify(text.encode('utf-8'))
     )
 
-
+@LRUcache
 def decode_hex(message, text: str):
     try:
         encryptout(
@@ -236,13 +233,13 @@ def decode_hex(message, text: str):
     except Exception:
         InvalidWarning(message, 'Invalid hex...')
 
-
+@LRUcache
 def encode_base85(message, text: str):
     encryptout(
         message, 'Text -> base85', base64.b85encode(text.encode('utf-8'))
     )
 
-
+@LRUcache
 def decode_base85(message, text: str):
     try:
         encryptout(
@@ -251,13 +248,13 @@ def decode_base85(message, text: str):
     except Exception:
         InvalidWarning(message, 'Invalid base85...')
 
-
+@LRUcache
 def encode_ascii85(message, text: str):
     encryptout(
         message, 'Text -> ASCII85', base64.a85encode(text.encode('utf-8'))
     )
 
-
+@LRUcache
 def decode_ascii85(message, text: str):
     try:
         encryptout(
@@ -266,7 +263,7 @@ def decode_ascii85(message, text: str):
     except Exception:
         InvalidWarning(message, 'Invalid ASCII85...')
 
-
+@LRUcache
 def encode_morse(message, text: str):
     try:
         answer = ' '.join(MorseCode.get(i.upper()) for i in text)
@@ -274,7 +271,7 @@ def encode_morse(message, text: str):
         return InvalidWarning(message, 'Invalid Morse')
     encryptout(message, 'Text -> Morse', answer)
 
-
+@LRUcache
 def decode_morse(message, text: str):
     try:
         answer = ' '.join(MorseCodeReversed.get(i.upper()) for i in text.split())
@@ -282,7 +279,7 @@ def decode_morse(message, text: str):
         return InvalidWarning(message, 'Invalid Morse')
     encryptout(message, 'Morse -> Text', answer)
 
-
+@LRUcache
 def encode_binary(message, text: str):
     try:
         res = ''.join(format(ord(i), '08b') for i in text)
@@ -291,7 +288,7 @@ def encode_binary(message, text: str):
     encryptout(
         message, 'Text -> binary', res)
 
-
+@LRUcache
 def decode_binary(message, text: str):
     try:
         binary_int = int(text, 2)

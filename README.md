@@ -1,7 +1,7 @@
 # Encodation (Praw encode/decode bot)
 
+## For info on how to use the bot please read the [docs](https://github.com/JakeWasChosen/RedditEncodationBot/blob/master/docs/HowToUse.md)
 
-##For info on how to use the bot please read the [docs](https://github.com/JakeWasChosen/RedditEncodationBot/blob/master/docs/HowToUse.md)
 Encode/decode text using a commandline style syntax
 
 Going into a little more detail the script will:

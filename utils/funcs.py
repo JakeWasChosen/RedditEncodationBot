@@ -138,8 +138,9 @@ def remove_markdown(text: str, *, ignore_links: bool = True) -> str:
     return re.sub(regex, replacement, text, 0, re.MULTILINE)
 
 
-def reply(message, content: str):
-    log.info(f'Replying to message (id: {message.id}, author: {message.author}) content: {str(content)}')
+def reply(message, content: str, nolog=False):
+    if not log:
+        log.info(f'Replying to message (id: {message.id}, author: {message.author}) content: {str(content)}')
     message.reply(f'{content}'
                   f'{footer_message()}')
 
@@ -150,3 +151,8 @@ def log_codec(message, codec: str):
 
 def log_codec_completion(message, codec_to: str, codec_from):
     log.debug(f'{message.id} The message has successfully been converted to {codec_to}, from {codec_from}')
+
+def send_help(message, parser):
+    log.info(f'Sending Help to message (id: {message.id}, author: {message.author})')
+    return reply(message, str(parser.format_help()).replace('usage: main.py', 'Arguments'), nolog=True)
+

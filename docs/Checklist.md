@@ -1,0 +1,33 @@
+# Does it work
+- [x]  Pure mention       (TODO make it look better formatted)
+- [x]  Mention with help
+- [ ]  no mention (Shouldn't)
+- [ ]  all Encoding methods
+- [ ]  All decoding methods
+- [ ]  error responses
+- [ ]  blacklist (subreddit and user)
+- [ ]  unsubscribing
+- [ ] 
+- [ ]  
+- [ ] 
+- [ ] 
+- [ ] 
+- [ ] 
+- [ ] 
+- [ ]
+- [ ] 
+- [ ]  
+- [ ] 
+- [ ] 
+- [ ] 
+- [ ] 
+- [ ] 
+- [ ] 
+- [ ] 
+- [ ]  
+- [ ] 
+- [ ] 
+- [ ] 
+- [ ] 
+- [ ] 
+- [ ] 

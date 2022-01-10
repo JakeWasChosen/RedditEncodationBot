@@ -17,6 +17,9 @@ logging.basicConfig(
     filemode="w+",
     level=logging.DEBUG
 )
+logging.getLogger('urllib3.connectionpool').setLevel(logging.WARNING)
+logging.getLogger('prawcore').setLevel(logging.WARNING)
+
 log = logging.getLogger(__name__)
 
 log.info('starting setup')
@@ -24,7 +27,7 @@ log.info('starting setup')
 log.addHandler(logging.StreamHandler(sys.stdout))
 
 # GLOBALS===========================#
-unsubscribers = {}
+unsubscribed_users = {}
 default_config = {'unsubscribed_users': []}
 
 
@@ -34,20 +37,20 @@ default_config = {'unsubscribed_users': []}
 
 def save():
     """
-    Save the unsubscribers to file
+    Save the unsubscribed_users to file
     """
-    # Open "unsubscribers.json" and dump the unsubscribers to it
-    with open('unsubscribers.json', 'w') as f:
-        json.dump(unsubscribers, f, indent=4, separators=(',', ': '))
+    # Open "unsubscribed_users.json" and dump the unsubscribed_users to it
+    with open('unsubscribed_users.json', 'w') as f:
+        json.dump(unsubscribed_users, f, indent=4, separators=(',', ': '))
 
 
 def login():
     log.info('initializing praw')
     # Try loading the config and logging in
     try:
-        global unsubscribers
-        with open('unsubscribers.json', 'r') as f:
-            unsubscribers = json.load(f)
+        global unsubscribed_users
+        with open('unsubscribed_users.json', 'r') as f:
+            unsubscribed_users = json.load(f)
 
         # This block creates the Reddit api connection.
         r = praw.Reddit(username=USERNAME,
@@ -60,11 +63,11 @@ def login():
         r.user.me()
         log.info('praw initialized')
         return r
-    # unsubscribers file doesn't exist
+    # unsubscribed_users file doesn't exist
     except FileNotFoundError:
         log.warning(
-            'Couldn\'t find "unsubscribers.json", creating...')
-        with open('unsubscribers.json', 'w') as f:
+            'Couldn\'t find "unsubscribed_users.json", creating...')
+        with open('unsubscribed_users.json', 'w') as f:
             json.dump(default_config, f, indent=4, separators=(',', ': '))
     # Couldn't log in to Reddit (probably wrong credentials)
     except (OAuthException, ResponseException) as e:
@@ -86,7 +89,7 @@ def handle_mentions(bot: praw.Reddit):
         if message.author == bot.user.me():
             continue
         # Don't reply to unsubscribed users
-        if message.author in unsubscribers['unsubscribed_users']:
+        if message.author in unsubscribed_users['unsubscribed_users']:
             continue
         if bot.user.me() in [message.author for message in message.replies]:
             continue
@@ -125,7 +128,7 @@ def handle_messages(bot: praw.Reddit, max_messages: int = 25):
         # Unsubscribe user
         if 'unsubscribe' in message.subject.lower() or 'unsubscribe' in message.body.lower():
             log.info(f'Unsubscribing "{message.author}"')
-            unsubscribers['unsubscribed_users'].append(str(message.author))
+            unsubscribed_users['unsubscribed_users'].append(str(message.author))
             save()
             reply(message, f'Okay, I will no longer reply to your posts.')
             message.delete()
@@ -148,8 +151,8 @@ log.info('Logging in...')
 bot = login()
 
 log.info('Logged in as ' + str(bot.user.me()))
-log.info(str(len(unsubscribers['unsubscribed_users'])) + ' unsubscribed user' + (
-    's' if len(unsubscribers['unsubscribed_users']) != 1 else ''))
+log.info(str(len(unsubscribed_users['unsubscribed_users'])) + ' unsubscribed user' + (
+    's' if len(unsubscribed_users['unsubscribed_users']) != 1 else ''))
 
 while True:
     run_bot(bot)
