@@ -1,6 +1,7 @@
 import logging
 import re
 from datetime import timezone, datetime
+from functools import lru_cache
 from time import sleep
 from typing import Any, Optional
 
@@ -12,15 +13,13 @@ from utils.vars import footer_message, GITHUB_TOKEN, _MARKDOWN_STOCK_REGEX, _URL
 
 log = logging.getLogger(__name__)
 
-
 def unlistify(lis: list) -> str:
     output = ""
     for i in lis:
         output += f'{i}   '
-    print(output)
     return output
 
-
+@lru_cache(maxsize=512)
 def truncate(data: str, length: int, append: str = '') -> str:
     """
     Truncates a string to the given length\n
@@ -30,7 +29,7 @@ def truncate(data: str, length: int, append: str = '') -> str:
     """
     return (data[:length] + append) if len(data) + len(append) > length else data
 
-
+@lru_cache(maxsize=512)
 def alterLink(url: str) -> InvalidUrl | str:
     try:
         requests.get(url)
@@ -49,12 +48,11 @@ def alterLink(url: str) -> InvalidUrl | str:
             url = url[:index] + '/raw' + url[index:]
     return url
 
-
+@lru_cache(maxsize=512)
 def getUrlText(url: str) -> str:
     uri = alterLink(url)
     response = requests.get(uri)
     data = response.text
-    print(data)
     return data
 
 
@@ -123,7 +121,7 @@ def create_gist(content, *, description=None, filename=None, public=True):
     js = github_request('POST', 'gists', data=data, headers=headers)
     return js['html_url']
 
-
+@lru_cache(maxsize=512)
 def remove_markdown(text: str, *, ignore_links: bool = True) -> str:
     """A helper function that removes markdown characters.
     """

@@ -10,6 +10,7 @@ from prawcore.exceptions import OAuthException, ResponseException
 from utils.funcs import truncate
 from utils.logic import *
 from utils.vars import *
+
 ACTIVE = True
 logging.basicConfig(
     format='%(asctime)s - [%(name)s | %(filename)s:%(lineno)d] - %(levelname)s - %(message)s',
@@ -98,11 +99,11 @@ def handle_mentions(bot: praw.Reddit):
                 log.info(
                     f'Found Mention in r/{str(message.subreddit)} (id:{str(message.id)})\n\t"' + truncate(message.body,
                                                                                                           70,
-                                                                                                         '...') + '"')
-                logic(bot, message)      #core logic of the bot
+                                                                                                          '...') + '"')
+                logic(bot, message)  # core logic of the bot
                 message.mark_read()  # mark message as read so your bot doesn't respond to it again...
         except praw.exceptions.APIException:  # Reddit may have rate limits, this prevents your bot from dying due to rate limits
-            print("probably a rate limit....")
+            log.debug("probably a rate limit....")
 
 
 def handle_messages(bot: praw.Reddit, max_messages: int = 25):
@@ -136,6 +137,7 @@ def handle_messages(bot: praw.Reddit, max_messages: int = 25):
         else:
             message.delete()
 
+
 def run_bot(bot: praw.Reddit, sleep_time: int = 10):
     try:
         handle_mentions(bot)
@@ -145,6 +147,7 @@ def run_bot(bot: praw.Reddit, sleep_time: int = 10):
     # Sleep, to not flood
     log.debug('Sleeping ' + str(sleep_time) + ' seconds...')
     time.sleep(sleep_time)
+
 
 # Main Code=========================#
 log.info('Logging in...')

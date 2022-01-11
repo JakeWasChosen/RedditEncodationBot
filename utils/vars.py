@@ -1,4 +1,5 @@
 import logging
+from functools import lru_cache
 from os import environ
 
 from dotenv import load_dotenv
@@ -17,7 +18,7 @@ GITHUB_TOKEN = environ.get('GITHUB_TOKEN')
 
 VERSION = 0.56
 
-
+@lru_cache(maxsize=50)
 def footer_message():
     """
     Returns the constructed footer message.\n
