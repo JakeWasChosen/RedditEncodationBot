@@ -7,6 +7,7 @@ import prawcore.exceptions
 from praw import exceptions
 from prawcore.exceptions import OAuthException, ResponseException
 
+from utils.__init__ import BlackList as Blacklist
 from utils.funcs import truncate
 from utils.logic import *
 from utils.vars import *
@@ -28,31 +29,16 @@ log.info('starting setup')
 log.addHandler(logging.StreamHandler(sys.stdout))
 
 # GLOBALS===========================#
-unsubscribed_users = {}
-default_config = {'unsubscribed_users': []}
 
 
 # ==================================#
 # Functions=========================#
 
 
-def save():
-    """
-    Save the unsubscribed_users to file
-    """
-    # Open "unsubscribed_users.json" and dump the unsubscribed_users to it
-    with open('unsubscribed_users.json', 'w') as f:
-        json.dump(unsubscribed_users, f, indent=4, separators=(',', ': '))
-
-
 def login():
     log.info('initializing praw')
     # Try loading the config and logging in
     try:
-        global unsubscribed_users
-        with open('unsubscribed_users.json', 'r') as f:
-            unsubscribed_users = json.load(f)
-
         # This block creates the Reddit api connection.
         r = praw.Reddit(username=USERNAME,
                         password=PASSWORD,
@@ -64,12 +50,6 @@ def login():
         r.user.me()
         log.info('praw initialized')
         return r
-    # unsubscribed_users file doesn't exist
-    except FileNotFoundError:
-        log.warning(
-            'Couldn\'t find "unsubscribed_users.json", creating...')
-        with open('unsubscribed_users.json', 'w') as f:
-            json.dump(default_config, f, indent=4, separators=(',', ': '))
     # Couldn't log in to Reddit (probably wrong credentials)
     except (OAuthException, ResponseException) as e:
         log.error(
@@ -90,8 +70,10 @@ def handle_mentions(bot: praw.Reddit):
         if message.author == bot.user.me():
             continue
         # Don't reply to unsubscribed users
-        if message.author in unsubscribed_users['unsubscribed_users']:
-            continue
+        if Blacklist.CheckUser(message.author):
+            message.mark_read()
+        if Blacklist.CheckSubreddit(message.subreddit):
+            message.mark_read()
         if bot.user.me() in [message.author for message in message.replies]:
             continue
         try:
@@ -129,16 +111,28 @@ def handle_messages(bot: praw.Reddit, max_messages: int = 25):
         # Unsubscribe user
         if 'unsubscribe' in message.subject.lower() or 'unsubscribe' in message.body.lower():
             log.info(f'Unsubscribing "{message.author}"')
-            unsubscribed_users['unsubscribed_users'].append(str(message.author))
-            save()
+            Blacklist.add_user(message.user, 'Unsubscribed')
             reply(message, f'Okay, I will no longer reply to your posts.')
             message.delete()
         # Ignore the message if we don't recognise it
+        # Resubscribe user
+        elif 'resubscribe' in message.subject.lower() or 'resubscribe' in message.body.lower():
+            if Blacklist.CheckUserReason('Unsubscribed'):
+                log.info(f'Resubscribing "{message.author}"')
+                Blacklist.add_user(message.user, 'Unsubscribe')
+                reply(message, f'Okay, I will no longer reply to your posts.')
+                message.delete()
+            else:
+                log.info(f'{message.author} Tried to resubscribe but was blacklisted')
+                reply(message,
+                      f'Im Sorry, But you were Blacklisted\n^(If you believe this was a mistake please make an) [^(UnBlacklist Request)](https://github.com/JakeWasChosen/RedditEncodationBot/issues/new?assignees=JakeWasChosen&labels=UnblacklistRequest&template=unblacklist-request.md&title=)')
+                message.deleted()
         else:
+            log.info(f'Got a new message {message.subject}\n{message.body}')
             message.delete()
 
 
-def run_bot(bot: praw.Reddit, sleep_time: int = 10):
+def run_bot(bot: praw.Reddit, sleep_time: int = 7):
     try:
         handle_mentions(bot)
         handle_messages(bot)
@@ -152,10 +146,7 @@ def run_bot(bot: praw.Reddit, sleep_time: int = 10):
 # Main Code=========================#
 log.info('Logging in...')
 bot = login()
-
 log.info('Logged in as ' + str(bot.user.me()))
-log.info(str(len(unsubscribed_users['unsubscribed_users'])) + ' unsubscribed user' + (
-    's' if len(unsubscribed_users['unsubscribed_users']) != 1 else ''))
 
 while True:
     run_bot(bot)

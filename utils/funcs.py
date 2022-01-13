@@ -8,6 +8,7 @@ from typing import Any, Optional
 import requests
 from yarl import URL
 
+import __init__
 from utils.exeptions import InvalidUrl, GithubError
 from utils.vars import footer_message, GITHUB_TOKEN, _MARKDOWN_STOCK_REGEX, _URL_REGEX
 
@@ -137,10 +138,17 @@ def remove_markdown(text: str, *, ignore_links: bool = True) -> str:
 
 
 def reply(message, content: str, nolog=False):
-    if not log:
-        log.info(f'Replying to message (id: {message.id}, author: {message.author}) content: {str(content)}')
-    message.reply(f'{content}'
-                  f'{footer_message()}')
+    try:
+        if not nolog:
+            log.info(f'Replying to message (id: {message.id}, author: {message.author}) content: {str(content)}')
+        message.reply(f'{content}'
+                      f'{footer_message()}')
+    except Exception as e:
+        log.error(f'REPLY FAILED: {e} @ {message.subreddit}')
+        if str(e) == '403 Client Error: Forbidden':
+            print('/r/' + message.subreddit + ' has banned me.')
+            log.critical('/r/' + message.subreddit + ' has banned me.')
+            __init__.Blacklist.add_subreddit(subreddit=message.subreddit, Reason='403 Error')
 
 
 def log_codec(message, codec: str):

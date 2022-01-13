@@ -7,7 +7,7 @@ import shlex
 
 import praw
 
-from utils.database import log_request, request
+from utils.database import request
 from utils.funcs import create_gist, reply, remove_markdown, unlistify, log_codec, log_codec_completion, send_help
 from utils.vars import MorseCode, MorseCodeReversed, footer_message
 
@@ -27,7 +27,7 @@ def logic(bot: praw.Reddit, message):
     pr.add_argument('--base32', '-b32', help='Encode/Decode in base32', action='store_true')
     pr.add_argument('--base64', '-b64', help='Encode/Decode in base64', action='store_true')
     pr.add_argument('--rot13', '-r13', help='Encode/Decode in rot13', action='store_true')
-    pr.add_argument('--hex', '-he', help='Encode/Decode in hex', action='store_true')
+    pr.add_argument('--hex', '-he', '-hex', help='Encode/Decode in hex', action='store_true')
     pr.add_argument('--base85', '-b85', help='Encode/Decode in base85', action='store_true')
     pr.add_argument('--ascii85', '-a85', help='Encode/Decode in ASCII85', action='store_true')
     pr.add_argument('--morse', '-m', help='Encode/Decode in morse code', action='store_true')
@@ -43,7 +43,7 @@ def logic(bot: praw.Reddit, message):
     log.debug(f'{args=} | {argument=}')
     text = unlistify(text) or args.text
     str(text).replace('&#x200b', '').replace('\n\n', '')
-    if not text and not args.help:     #FIXME this might be useless 
+    if not text and not args.help:  # FIXME this might be useless
         return warning(message, 'you need to fill the --text argument')
     # types
     if args.help:
@@ -70,6 +70,7 @@ def logic(bot: praw.Reddit, message):
         log_codec(message, 'morse')
         codec = 'morse'
     elif args.binary:
+
         log_codec(message, 'binary')
         codec = 'binary'
     else:
@@ -77,7 +78,7 @@ def logic(bot: praw.Reddit, message):
 
     if args.encode:
         encode(codec, message, text)
-    elif args.base64:
+    elif args.decode:
         decode(codec, message, text)
 
     if not args.encode and not args.decode:
@@ -133,37 +134,39 @@ def warning(message, msg):
                 f'{msg}')
     reply(message, msg)
 
+
 def InvalidWarning(message, param):
     log.info(f'Message: {message} '
              f'{param}')
 
-    message.reply(f'Sorry {message.author} but it looks like that was some {param}, Please try again.'
+    message.reply(f'Sorry u/{message.author} but it looks like that was some {param}, Please try again.'
                   f'{footer_message()}')
 
 
 def encryptout(message, ConversionType: str, text):
+    print(text)
     """The main, modular function to control encrypt/decrypt commands"""
     if not text:
         return warning(message,
                        f'Aren\'t you going to give me anything to encode/decode **{message.author.name}**'
                        )
-    # todo return if over 1500 chars in length a github gist
     try:
-        text = str(text, 'utf-8')
+        text = str(text, 'utf-8').replace('\n', '')
     except:
         pass
     to, from_ = tuple(ConversionType.split(' -> '))
     log_codec_completion(message, to, from_)
     try:
-        content = f'*{ConversionType}*\n**{text}**'
+        content = f'*{ConversionType}*\n`{text}`'
     except Exception as e:
         log.error(f'Something went wrong with {e}')
-        return warning(message, f'Something went wrong, sorry {message.author}...')
+        return warning(message, f'Something went wrong, sorry u/{message.author}...')
 
     if len(text) < 1500:
         reply(message, content)
 
     else:
+        log.debug(f'Creating Gist {message.id}')
         CreateGistMessage(message, content=content)
 
 
@@ -180,6 +183,7 @@ def encode_base32(message, text: str):
     encryptout(
         message, 'Text -> base32', base64.b32encode(text.encode('utf-8'))
     )
+
 
 def decode_base32(message, text: str):
     try:
@@ -225,7 +229,7 @@ def encode_hex(message, text: str):
 def decode_hex(message, text: str):
     try:
         encryptout(
-            message, 'hex -> Text', binascii.unhexlify(text.encode('utf-8'))
+            message, 'hex -> Text', binascii.unhexlify(text.encode('utf-8').rstrip('20'))
         )
     except Exception:
         InvalidWarning(message, 'Invalid hex...')
@@ -263,7 +267,7 @@ def decode_ascii85(message, text: str):
 
 def encode_morse(message, text: str):
     try:
-        answer = ' '.join(MorseCode.get(i.upper()) for i in text)
+        answer = ''.join(MorseCode.get(i.upper()) for i in text)
     except TypeError:
         return InvalidWarning(message, 'Invalid Morse')
     encryptout(message, 'Text -> Morse', answer)
@@ -271,7 +275,7 @@ def encode_morse(message, text: str):
 
 def decode_morse(message, text: str):
     try:
-        answer = ' '.join(MorseCodeReversed.get(i.upper()) for i in text.split())
+        answer = ''.join(MorseCodeReversed.get(i.upper()) for i in text.split())
     except TypeError:
         return InvalidWarning(message, 'Invalid Morse')
     encryptout(message, 'Morse -> Text', answer)
