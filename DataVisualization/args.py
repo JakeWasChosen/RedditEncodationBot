@@ -97,5 +97,7 @@ plt.legend(
     o_wedges, labels, loc="best", bbox_to_anchor=(0.8, 1.0), fontsize=8, frameon=False
 )
 plt.tight_layout()
-plt.savefig('Generated/Arguments.png')
+samefile = f"{dirname(abspath(__file__))}"
+print(f'{samefile}/Generated/Arguments.png')
+plt.savefig(f'{samefile}/Generated/Arguments.png')
 plt.show()
