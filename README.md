@@ -1,5 +1,6 @@
 # Encodation (Praw encode/decode bot)
-
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![License: MIT](https://img.shields.io/badge/License-MIT-314e9f.svg)](https://opensource.org/licenses/MIT)
 ## For info on how to use the bot please read the [docs](https://github.com/JakeWasChosen/RedditEncodationBot/blob/master/docs/HowToUse.md)
 
 Encode/decode text using a commandline style syntax

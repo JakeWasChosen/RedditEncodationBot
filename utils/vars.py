@@ -5,17 +5,18 @@ from os import environ
 from dotenv import load_dotenv
 
 log = logging.getLogger(__name__)
-log.info('loading env vars')
-load_dotenv('settings.env')
-CLIENT_SECRET = environ.get('CLIENT_SECRET')
-CLIENT_ID = environ.get('CLIENT_ID')
-PASSWORD = environ.get('ACCOUNT_PASSWORD')
-USERNAME = environ.get('ACCOUNT_USERNAME')
-CREATOR_USERNAME = environ.get('CREATOR_USERNAME')
+log.info("loading env vars")
+load_dotenv("settings.env")
+CLIENT_SECRET = environ.get("CLIENT_SECRET")
+CLIENT_ID = environ.get("CLIENT_ID")
+PASSWORD = environ.get("ACCOUNT_PASSWORD")
+USERNAME = environ.get("ACCOUNT_USERNAME")
+CREATOR_USERNAME = environ.get("CREATOR_USERNAME")
 
-GITHUB_TOKEN = environ.get('GITHUB_TOKEN')
+GITHUB_TOKEN = environ.get("GITHUB_TOKEN")
 
 VERSION = 0.56
+
 
 @lru_cache(maxsize=50)
 def footer_message():
@@ -24,14 +25,14 @@ def footer_message():
     `bot` The currently running bot.
     """
     # This can be customised to whatever you like. You can use Reddit Markdown formatting as well.
-    return f'\n\n___\n\n ^(I am a bot. Please Create a) [^(Bug Report)](https://github.com/JakeWasChosen/RedditEncodationBot/issues/new?assignees=JakeWasChosen&labels=bug&template=bug_report.md&title=%5BBUG%5D)^( if I am being stupid.) ^(If not Please consider) [^(Buying my creator a coffee.)](https://www.buymeacoffee.com/edoc) ^(We also have a) [^(Discord Server)](https://discord.gg/6EFAqm5aSG)^(,) ^(Come check it out.)\n ^[Unsubscribe](https://www.reddit.com/message/compose/?to={USERNAME}&subject=unsubscribe&message=unsubscribe)'
+    return f"\n\n___\n\n ^(I am a bot. Please Create a) [^(Bug Report)](https://github.com/JakeWasChosen/RedditEncodationBot/issues/new?assignees=JakeWasChosen&labels=bug&template=bug_report.md&title=%5BBUG%5D)^( if I am being stupid.) ^(If not Please consider) [^(Buying my creator a coffee.)](https://www.buymeacoffee.com/edoc) ^(We also have a) [^(Discord Server)](https://discord.gg/6EFAqm5aSG)^(,) ^(Come check it out.)\n ^[Unsubscribe](https://www.reddit.com/message/compose/?to={USERNAME}&subject=unsubscribe&message=unsubscribe)"
 
 
-_MARKDOWN_ESCAPE_COMMON = r'^>(?:>>)?\s|\[.+\]\(.+\)'
+_MARKDOWN_ESCAPE_COMMON = r"^>(?:>>)?\s|\[.+\]\(.+\)"
 
-_URL_REGEX = r'(?P<url><[^: >]+:\/[^ >]+>|(?:https?|steam):\/\/[^\s<]+[^<.,:;\"\'\]\s])'
+_URL_REGEX = r"(?P<url><[^: >]+:\/[^ >]+>|(?:https?|steam):\/\/[^\s<]+[^<.,:;\"\'\]\s])"
 
-_MARKDOWN_STOCK_REGEX = fr'(?P<markdown>[_\\~|\*`]|{_MARKDOWN_ESCAPE_COMMON})'
+_MARKDOWN_STOCK_REGEX = fr"(?P<markdown>[_\\~|\*`]|{_MARKDOWN_ESCAPE_COMMON})"
 MorseCode = {
     "A": ".-",
     "B": "-...",

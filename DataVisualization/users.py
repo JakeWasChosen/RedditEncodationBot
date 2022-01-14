@@ -1,13 +1,13 @@
 import json
 from os.path import dirname, abspath
 
-file = f'{dirname(abspath(__file__))[:-17]}'
+file = f"{dirname(abspath(__file__))[:-17]}"
 
-with open(f'{file}data\\db.json') as json_file:
+with open(f"{file}data\\db.json") as json_file:
     ArgsDict = json.load(json_file)
 Arglist = []
-for nums, req in enumerate(list(ArgsDict['requests'])):
-    Arglist.append((ArgsDict['requests'][str(nums + 1)]['author']))
+for nums, req in enumerate(list(ArgsDict["requests"])):
+    Arglist.append((ArgsDict["requests"][str(nums + 1)]["author"]))
 AuthorCounts = {}
 for entry in Arglist:
     if entry in AuthorCounts.keys():
