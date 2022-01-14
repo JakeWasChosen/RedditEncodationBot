@@ -1,4 +1,3 @@
-import json  # Save/Load config
 import sys  # For various things
 # To truncate messages (optional really)
 import time  # To sleep
@@ -111,8 +110,9 @@ def handle_messages(bot: praw.Reddit, max_messages: int = 25):
         # Unsubscribe user
         if 'unsubscribe' in message.subject.lower() or 'unsubscribe' in message.body.lower():
             log.info(f'Unsubscribing "{message.author}"')
-            Blacklist.add_user(message.user, 'Unsubscribed')
-            reply(message, f'Okay, I will no longer reply to your posts.')
+            Blacklist.add_user(message.author, 'Unsubscribed')
+            reply(message,
+                  f'Okay, I will no longer reply to your posts.\n ^(If this was was a mistake please) ^[Resubscribe](https://www.reddit.com/message/compose/?to={USERNAME}&subject=resubscribe&message=resubscribe)')
             message.delete()
         # Ignore the message if we don't recognise it
         # Resubscribe user
@@ -134,8 +134,8 @@ def handle_messages(bot: praw.Reddit, max_messages: int = 25):
 
 def run_bot(bot: praw.Reddit, sleep_time: int = 7):
     try:
-        handle_mentions(bot)
         handle_messages(bot)
+        handle_mentions(bot)
     except prawcore.exceptions.ServerError:
         sleep_time += 1
     # Sleep, to not flood
@@ -149,4 +149,8 @@ bot = login()
 log.info('Logged in as ' + str(bot.user.me()))
 
 while True:
-    run_bot(bot)
+    try:
+        run_bot(bot)
+    except prawcore.exceptions.RequestException:
+        log.error('There was A prawcore.exceptions.RequestException')
+        time.sleep(10)

@@ -1,6 +1,7 @@
 import logging
 from functools import lru_cache
 from os import environ
+
 from dotenv import load_dotenv
 
 log = logging.getLogger(__name__)
@@ -23,7 +24,7 @@ def footer_message():
     `bot` The currently running bot.
     """
     # This can be customised to whatever you like. You can use Reddit Markdown formatting as well.
-    return f'\n\n___\n\n ^(I am a bot. Please message) [^(u/{CREATOR_USERNAME})](https://www.reddit.com/u/{CREATOR_USERNAME}/) ^(if I am being stupid.) ^(If not Please consider) [^(Buying my creator a coffee.)](https://www.buymeacoffee.com/edoc) ^(We also have a) [^(Discord Server)](https://discord.gg/6EFAqm5aSG)^(,) ^(Come check it out.)\n ^[Unsubscribe](https://www.reddit.com/message/compose/?to={USERNAME}&subject=unsubscribe&message=unsubscribe)'
+    return f'\n\n___\n\n ^(I am a bot. Please Create a) [^(Bug Report)](https://github.com/JakeWasChosen/RedditEncodationBot/issues/new?assignees=JakeWasChosen&labels=bug&template=bug_report.md&title=%5BBUG%5D)^( if I am being stupid.) ^(If not Please consider) [^(Buying my creator a coffee.)](https://www.buymeacoffee.com/edoc) ^(We also have a) [^(Discord Server)](https://discord.gg/6EFAqm5aSG)^(,) ^(Come check it out.)\n ^[Unsubscribe](https://www.reddit.com/message/compose/?to={USERNAME}&subject=unsubscribe&message=unsubscribe)'
 
 
 _MARKDOWN_ESCAPE_COMMON = r'^>(?:>>)?\s|\[.+\]\(.+\)'

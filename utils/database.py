@@ -1,14 +1,14 @@
 import logging
 from functools import lru_cache
 from time import time
+from typing import Optional
 
-from tinydb import TinyDB, Query
 import pickledb
+from tinydb import TinyDB, Query
 from tinydb.table import Table
 from tinydb_smartcache import SmartCacheTable
 
 from utils.exeptions import UserError
-from typing import Optional
 
 TinyDB.table_class = SmartCacheTable
 stats_db = pickledb.load('data/stats.db', True)
@@ -88,6 +88,8 @@ class Blacklist:
 
     @lru_cache(256)
     def CheckSubreddit(self, subreddit):
+        if subreddit is None:
+            return False
         Subreddit = Query()
         x = self.UserBlacklist.contains(Subreddit.ID == subreddit.name)
         if bool(x):
