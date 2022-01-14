@@ -47,7 +47,7 @@ jobs:
       - name: Generate Statistical Images
         run: |
           python3 --version
-          python3 args.py
+          python3 DataVisualization/args.py
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           EXCLUDE_FORKED_REPOS: true
