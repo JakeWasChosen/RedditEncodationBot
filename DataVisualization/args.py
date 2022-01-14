@@ -6,8 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 file = f"{dirname(abspath(__file__))[:-17]}"
-
-with open(f"{file}data\\db.json") as json_file:
+with open(f"{file}data/db.json") as json_file:
     ArgsDict = json.load(json_file)
 Arglist = []
 for nums, req in enumerate(list(ArgsDict["requests"])):
