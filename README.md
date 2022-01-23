@@ -34,6 +34,7 @@ Inspiration was drawn from another project of mine [edoC](https://github.com/Jak
 #todo
 * add more options for calling the args
 * (MAYBE) integrate Bella into this somehow
+* Add a check whenever you add a new user into the blacklist and keep the more severe offence
 
 ## Install process
 1. Download and install python from https://www.python.org/ (If you're unsure download version 3.5 and chose default install)
