@@ -413,6 +413,55 @@
         "encode": true,
         "base32": true
       }
+    },
+    "42": {
+      "MessageID": "ht1jb3r",
+      "time": 1642430644.3887022,
+      "NumbRequest": 61,
+      "author": "AbotDevelopers2ndAlt",
+      "Args": {
+        "encode": true
+      }
+    },
+    "43": {
+      "MessageID": "ht8bzm7",
+      "time": 1642541262.4505517,
+      "NumbRequest": 62,
+      "author": "AbotDevelopers2ndAlt",
+      "Args": {
+        "encode": true,
+        "hex": true
+      }
+    },
+    "44": {
+      "MessageID": "ht8dipn",
+      "time": 1642541807.480839,
+      "NumbRequest": 63,
+      "author": "AbotDevelopers2ndAlt",
+      "Args": {
+        "decode": true,
+        "hex": true
+      }
+    },
+    "45": {
+      "MessageID": "ht8f02w",
+      "time": 1642542364.09071,
+      "NumbRequest": 64,
+      "author": "AbotDevelopers2ndAlt",
+      "Args": {
+        "encode": true,
+        "hex": true
+      }
+    },
+    "46": {
+      "MessageID": "ht8f5x5",
+      "time": 1642542428.263496,
+      "NumbRequest": 65,
+      "author": "AbotDevelopers2ndAlt",
+      "Args": {
+        "decode": true,
+        "hex": true
+      }
     }
   }
 }

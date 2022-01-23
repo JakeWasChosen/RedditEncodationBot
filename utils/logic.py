@@ -253,16 +253,15 @@ def decode_rot13(message, text: str):
 
 
 def encode_hex(message, text: str):
-    encryptout(message, "Text -> hex", binascii.hexlify(text.encode("utf-8")))
+    try:
+        encryptout(message, "Text -> hex", binascii.hexlify(text.encode()))
+    except Exception:
+        InvalidWarning(message, "Invalid hex...")
 
 
 def decode_hex(message, text: str):
     try:
-        encryptout(
-            message,
-            "hex -> Text",
-            binascii.unhexlify(text.encode("utf-8").rstrip("20")),
-        )
+        encryptout(message, "hex -> Text", bytearray.fromhex(text).decode('utf-8'))
     except Exception:
         InvalidWarning(message, "Invalid hex...")
 

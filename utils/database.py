@@ -74,7 +74,7 @@ class Blacklist:
         self.log.info(f"Removing {user} to the Blacklist")
         self.UserBlacklist.remove(Users.ID == user.name)
 
-    @lru_cache(256)
+    @lru_cache(512)
     def CheckUser(self, user):
         User = Query()
         x = self.UserBlacklist.contains(User.ID == user.name)
@@ -83,7 +83,7 @@ class Blacklist:
         else:
             return False
 
-    @lru_cache(256)
+    @lru_cache(512)
     def CheckUserReason(self, user, text: str = None) -> Optional[bool]:
         if self.CheckUser(user):
             User = Query()
@@ -94,7 +94,7 @@ class Blacklist:
         else:
             return UserError("User isn't Blacklisted")
 
-    @lru_cache(256)
+    @lru_cache(512)
     def CheckSubreddit(self, subreddit):
         if subreddit is None:
             return False

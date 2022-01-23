@@ -1,6 +1,7 @@
 import sys  # For various things
 # To truncate messages (optional really)
 import time  # To sleep
+from threading import Thread
 
 import prawcore.exceptions
 from praw import exceptions
@@ -71,29 +72,37 @@ def handle_mentions(bot: praw.Reddit):
     # For every subreddit bot should comment on
 
     messages = bot.inbox.stream()  # creates an iterable for your inbox and streams it
-    for message in messages:  # iterates through your messages
-        if message.author == bot.user.me():
-            continue
-        # Don't reply to unsubscribed users
-        if Blacklist.CheckUser(message.author):
-            message.mark_read()
-        if Blacklist.CheckSubreddit(message.subreddit):
-            message.mark_read()
-        if bot.user.me() in [message.author for message in message.replies]:
-            continue
-        try:
-            if (
-                    message in bot.inbox.unread() and f"u/{USERNAME}" in message.body
-            ):  # if this message is a mention AND it is unread...
-                log.info(
-                    f'Found Mention in r/{str(message.subreddit)} (id:{str(message.id)})\n\t"'
-                    + truncate(message.body, 70, "...")
-                    + '"'
-                )
-                logic(bot, message)  # core logic of the bot
-                message.mark_read()  # mark message as read so your bot doesn't respond to it again...
-        except praw.exceptions.APIException:  # Reddit may have rate limits, this prevents your bot from dying due to rate limits
-            log.debug("probably a rate limit....")
+    try:
+
+        for message in messages:  # iterates through your messages
+            if message.author == bot.user.me():
+                continue
+            # Don't reply to unsubscribed users
+            if Blacklist.CheckUser(message.author):
+                log.debug(
+                    f'Found User Blacklisted Mention in r/{str(message.subreddit)} By (Author: u/{message.author})(id:{str(message.id)})')
+                message.mark_read()
+            if Blacklist.CheckSubreddit(message.subreddit):
+                log.debug(
+                    f'Found Subreddit Blacklisted Mention in r/{str(message.subreddit)} By (Author: u/{message.author})(id:{str(message.id)})')
+                message.mark_read()
+            if bot.user.me() in [message.author for message in message.replies]:
+                continue
+            try:
+                if (
+                        message in bot.inbox.unread() and f"u/{USERNAME}" in message.body
+                ):  # if this message is a mention AND it is unread...
+                    log.info(
+                        f'Found Mention in r/{str(message.subreddit)} (id:{str(message.id)})\n\t"'
+                        + truncate(message.body, 70, "...")
+                        + '"'
+                    )
+                    logic(bot, message)  # core logic of the bot
+                    message.mark_read()  # mark message as read so your bot doesn't respond to it again...
+            except praw.exceptions.APIException:  # Reddit may have rate limits, this prevents your bot from dying due to rate limits
+                log.debug("probably a rate limit....")
+    except prawcore.exceptions.ServerError as e:
+        log.debug(f'Server Error: {e}')
 
 
 def handle_messages(bot: praw.Reddit, max_messages: int = 25):
@@ -104,15 +113,12 @@ def handle_messages(bot: praw.Reddit, max_messages: int = 25):
     """
     # Get the messages
     messages = list(bot.inbox.messages(limit=max_messages))
-    # If we have no messages, quit
-    if len(messages) == 0:
-        return
-    # Print how many messages we have
-    log.info("Messages (" + str(len(messages)) + "):")
+    if len(messages) != 0:
+        log.info("Messages (" + str(len(messages)) + "):")  # Print how many messages we have
     # Iterate through every message
     for message in messages:
-        log.info("Sender: " + (str(message.author) if message.author else "Reddit"))
-        log.info('\t"' + truncate(message.body, 70, "...") + '"')
+        log.info("  Sender: " + (str(message.author) if message.author else "Reddit"))
+        log.info('  \t"' + truncate(message.body, 70, "...") + '"')
 
         # This is where you can handle different text in the messages.
         # Unsubscribe user
@@ -135,7 +141,7 @@ def handle_messages(bot: praw.Reddit, max_messages: int = 25):
         ):
             if Blacklist.CheckUserReason("Unsubscribed"):
                 log.info(f'Resubscribing "{message.author}"')
-                Blacklist.add_user(message.user, "Unsubscribe")
+                Blacklist.remove_user(message.author)
                 reply(message, f"Okay, I will no longer reply to your posts.")
                 message.delete()
             else:
@@ -152,12 +158,15 @@ def handle_messages(bot: praw.Reddit, max_messages: int = 25):
 
 def run_bot(bot: praw.Reddit, sleep_time: int = 7):
     try:
-        handle_messages(bot)
-        handle_mentions(bot)
+        a = Thread(target=handle_mentions, args=(bot,))
+        b = Thread(target=handle_messages, args=(bot,))
+        a.start()
+        b.start()
     except prawcore.exceptions.ServerError:
+        log.error("There was A prawcore.exceptions.ServerError")
+        log.debug("Sleeping for " + str(sleep_time) + " seconds...")
         sleep_time += 1
     # Sleep, to not flood
-    log.debug("Sleeping " + str(sleep_time) + " seconds...")
     time.sleep(sleep_time)
 
 
@@ -166,9 +175,7 @@ log.info("Logging in...")
 bot = login()
 log.info("Logged in as " + str(bot.user.me()))
 
-while True:
-    try:
-        run_bot(bot)
-    except prawcore.exceptions.RequestException:
-        log.error("There was A prawcore.exceptions.RequestException")
-        time.sleep(10)
+try:
+    run_bot(bot)
+except prawcore.exceptions.RequestException:
+    log.error("There was A prawcore.exceptions.RequestException")
