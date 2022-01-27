@@ -77,7 +77,7 @@ class Blacklist:
     @lru_cache(512)
     def CheckUser(self, user):
         User = Query()
-        x = self.UserBlacklist.contains(User.ID == user.name)
+        x = self.UserBlacklist.contains(User.ID == user)
         if bool(x):
             return True
         else:

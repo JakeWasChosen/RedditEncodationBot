@@ -462,6 +462,15 @@
         "decode": true,
         "hex": true
       }
+    },
+    "47": {
+      "MessageID": "hu7tjea",
+      "time": 1643151468.2474613,
+      "NumbRequest": 66,
+      "author": "AbotDevelopers2ndAlt",
+      "Args": {
+        "help": true
+      }
     }
   }
 }

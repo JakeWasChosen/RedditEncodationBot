@@ -73,8 +73,8 @@ def handle_mentions(bot: praw.Reddit):
 
     messages = bot.inbox.stream()  # creates an iterable for your inbox and streams it
     try:
-
         for message in messages:  # iterates through your messages
+            print(message)
             if message.author == bot.user.me():
                 continue
             # Don't reply to unsubscribed users
@@ -86,12 +86,16 @@ def handle_mentions(bot: praw.Reddit):
                 log.debug(
                     f'Found Subreddit Blacklisted Mention in r/{str(message.subreddit)} By (Author: u/{message.author})(id:{str(message.id)})')
                 message.mark_read()
+            print('test')
             if bot.user.me() in [message.author for message in message.replies]:
                 continue
             try:
+                print(message.body)
                 if (
-                        message in bot.inbox.unread() and f"u/{USERNAME}" in message.body
+                        message in bot.inbox.unread() and f"u/{USERNAME}" in message.body.lower()
                 ):  # if this message is a mention AND it is unread...
+                    print('test3')
+
                     log.info(
                         f'Found Mention in r/{str(message.subreddit)} (id:{str(message.id)})\n\t"'
                         + truncate(message.body, 70, "...")
@@ -101,7 +105,7 @@ def handle_mentions(bot: praw.Reddit):
                     message.mark_read()  # mark message as read so your bot doesn't respond to it again...
             except praw.exceptions.APIException:  # Reddit may have rate limits, this prevents your bot from dying due to rate limits
                 log.debug("probably a rate limit....")
-    except prawcore.exceptions.ServerError as e:
+    except prawcore.exceptions.ServerError or prawcore.exceptions.ResponseException as e:
         log.debug(f'Server Error: {e}')
 
 
@@ -137,8 +141,7 @@ def handle_messages(bot: praw.Reddit, max_messages: int = 25):
         # Resubscribe user
         elif (
                 "resubscribe" in message.subject.lower()
-                or "resubscribe" in message.body.lower()
-        ):
+                or "resubscribe" in message.body.lower()):
             if Blacklist.CheckUserReason("Unsubscribed"):
                 log.info(f'Resubscribing "{message.author}"')
                 Blacklist.remove_user(message.author)
@@ -159,9 +162,11 @@ def handle_messages(bot: praw.Reddit, max_messages: int = 25):
 def run_bot(bot: praw.Reddit, sleep_time: int = 7):
     try:
         a = Thread(target=handle_mentions, args=(bot,))
-        b = Thread(target=handle_messages, args=(bot,))
         a.start()
-        b.start()
+        while True:
+            b = Thread(target=handle_messages, args=(bot,))
+            b.start()
+            time.sleep(30)
     except prawcore.exceptions.ServerError:
         log.error("There was A prawcore.exceptions.ServerError")
         log.debug("Sleeping for " + str(sleep_time) + " seconds...")
