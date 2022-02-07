@@ -23,6 +23,7 @@ count = {
     "morse": 0,
     "binary": 0,
     "text": 0,
+    "help": 0
 }
 for entry in Arglist:
     for k, v in entry.items():
@@ -39,7 +40,7 @@ en_de_sizes = [count["encode"], count["decode"]]
 en_de_labels = ["Encode", "Decode"]
 en_de_colors = ["#3E5D74", "#a5487d"]
 # other args vars
-o_explode = (0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007)
+o_explode = (0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007, 0.007)
 o_sizes = np.array(
     [
         count["base32"],
@@ -51,6 +52,8 @@ o_sizes = np.array(
         count["morse"],
         count["binary"],
         count["text"],
+        count["help"]
+
     ]
 )
 o_labels = [
@@ -63,6 +66,7 @@ o_labels = [
     "morse",
     "binary",
     "text",
+    "help"
 ]
 o_colors = [
     "#f72585",
@@ -75,6 +79,7 @@ o_colors = [
     "#4361ee",
     "#4895ef",
     "#4cc9f0",
+    "#45B7DA"
 ]
 porcent = 100.0 * o_sizes / o_sizes.sum()
 labels = ["{0} - {1:1.2f} %".format(i, j) for i, j in zip(o_labels, porcent)]
