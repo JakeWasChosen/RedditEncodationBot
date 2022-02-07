@@ -60,7 +60,6 @@ def login():
             + str(e)
             + ")"
         )
-    input("Press return to exit...")
     exit(0)
 
 
@@ -80,21 +79,24 @@ def handle_mentions(bot: praw.Reddit):
             # Don't reply to unsubscribed users
             if Blacklist.CheckUser(message.author):
                 log.debug(
-                    f'Found User Blacklisted Mention in r/{str(message.subreddit)} By (Author: u/{message.author})(id:{str(message.id)})')
+                    f"Found User Blacklisted Mention in r/{str(message.subreddit)} By (Author: u/{message.author})(id:{str(message.id)})"
+                )
                 message.mark_read()
             if Blacklist.CheckSubreddit(message.subreddit):
                 log.debug(
-                    f'Found Subreddit Blacklisted Mention in r/{str(message.subreddit)} By (Author: u/{message.author})(id:{str(message.id)})')
+                    f"Found Subreddit Blacklisted Mention in r/{str(message.subreddit)} By (Author: u/{message.author})(id:{str(message.id)})"
+                )
                 message.mark_read()
-            print('test')
+            print("test")
             if bot.user.me() in [message.author for message in message.replies]:
                 continue
             try:
                 print(message.body)
                 if (
-                        message in bot.inbox.unread() and f"u/{USERNAME}" in message.body.lower()
+                        message in bot.inbox.unread()
+                        and f"u/{USERNAME}" in message.body.lower()
                 ):  # if this message is a mention AND it is unread...
-                    print('test3')
+                    print("test3")
 
                     log.info(
                         f'Found Mention in r/{str(message.subreddit)} (id:{str(message.id)})\n\t"'
@@ -106,7 +108,7 @@ def handle_mentions(bot: praw.Reddit):
             except praw.exceptions.APIException:  # Reddit may have rate limits, this prevents your bot from dying due to rate limits
                 log.debug("probably a rate limit....")
     except prawcore.exceptions.ServerError or prawcore.exceptions.ResponseException as e:
-        log.debug(f'Server Error: {e}')
+        log.debug(f"Server Error: {e}")
 
 
 def handle_messages(bot: praw.Reddit, max_messages: int = 25):
@@ -118,7 +120,9 @@ def handle_messages(bot: praw.Reddit, max_messages: int = 25):
     # Get the messages
     messages = list(bot.inbox.messages(limit=max_messages))
     if len(messages) != 0:
-        log.info("Messages (" + str(len(messages)) + "):")  # Print how many messages we have
+        log.info(
+            "Messages (" + str(len(messages)) + "):"
+        )  # Print how many messages we have
     # Iterate through every message
     for message in messages:
         log.info("  Sender: " + (str(message.author) if message.author else "Reddit"))
@@ -141,7 +145,8 @@ def handle_messages(bot: praw.Reddit, max_messages: int = 25):
         # Resubscribe user
         elif (
                 "resubscribe" in message.subject.lower()
-                or "resubscribe" in message.body.lower()):
+                or "resubscribe" in message.body.lower()
+        ):
             if Blacklist.CheckUserReason("Unsubscribed"):
                 log.info(f'Resubscribing "{message.author}"')
                 Blacklist.remove_user(message.author)

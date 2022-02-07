@@ -98,6 +98,6 @@ plt.legend(
 )
 plt.tight_layout()
 samefile = f"{dirname(abspath(__file__))}"
-plt.xlabel('test')
-plt.savefig(f'{samefile}/Generated/Arguments.png')
+plt.xlabel("test")
+plt.savefig(f"{samefile}/Generated/Arguments.png")
 plt.show()
